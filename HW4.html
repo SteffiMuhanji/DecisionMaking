@@ -1,0 +1,345 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>HW4</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-03-02"><meta name="DC.source" content="HW4.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Steffi Olesi Muhanji</a></li><li><a href="#2">Q-Learning: computing the optimal policy</a></li><li><a href="#3">compute Q</a></li><li><a href="#4">Compute M</a></li><li><a href="#5">Check the cost to be</a></li></ul></div><h2>Steffi Olesi Muhanji<a name="1"></a></h2><pre class="codeinput"><span class="comment">%%ENGG 177: HW 4</span>
+</pre><h2>Q-Learning: computing the optimal policy<a name="2"></a></h2><pre class="codeinput">clc; clear
+A =  [1/5 4/5 0 0 0;
+    0 0 0 1 0;
+    1/2 0 0 1/4 1/4;
+    1/2 0 1/2 0 0;
+    0.2 0 0 0 0.8];
+display(A)
+B = [1/5 3/5 0 1/5 0;
+    0.3 0 0 0.7 0;
+    1/3 0 0 1/3 1/3;
+    1/8 0 7/8 0 0;
+    1/2 0 0 0 1/2];
+display(B)
+C = [1 3 -1 2 6]';
+display(C)
+<span class="comment">% lambda = 0.9;</span>
+
+Q=rand(5,2); <span class="comment">% Random matrix for denoting the rewards/costs</span>
+<span class="comment">% for each state for given the two actions A,B. In this case, Q is 5, for</span>
+<span class="comment">% the 5 states in A and B, by 2, for the options A, and B.</span>
+<span class="comment">%</span>
+sk=randi(5); <span class="comment">% Random integer denoting a state</span>
+ak=randi(2); <span class="comment">% Random integer denoting a choice</span>
+gamma=0.9;<span class="comment">% discount factor</span>
+n = 180000;
+</pre><pre class="codeoutput">
+A =
+
+    0.2000    0.8000         0         0         0
+         0         0         0    1.0000         0
+    0.5000         0         0    0.2500    0.2500
+    0.5000         0    0.5000         0         0
+    0.2000         0         0         0    0.8000
+
+
+B =
+
+    0.2000    0.6000         0    0.2000         0
+    0.3000         0         0    0.7000         0
+    0.3333         0         0    0.3333    0.3333
+    0.1250         0    0.8750         0         0
+    0.5000         0         0         0    0.5000
+
+
+C =
+
+     1
+     3
+    -1
+     2
+     6
+
+</pre><h2>compute Q<a name="3"></a></h2><pre class="codeinput"><span class="keyword">for</span> i=1:n,
+    <span class="keyword">if</span> ak==1,
+<span class="comment">%         mnrnd samples the row even it and returns a vector of 1's and 0's</span>
+<span class="comment">%         based on the probabilities provided</span>
+<span class="comment">% maximum value will be 1 and skp1 will be the index of the maximum value</span>
+        [m,skp1] = max(mnrnd(1,A(sk,:)));
+    <span class="keyword">else</span>
+        [m,skp1] = max(mnrnd(1,B(sk,:)));
+    <span class="keyword">end</span>;
+<span class="comment">%     Find a minimum since we re looking for the least cost</span>
+    [m,b]=min(Q(skp1(1),:));
+<span class="comment">%     Update the Q values</span>
+    Q(sk,ak)=(1-1/(1+log(i)))*Q(sk,ak)+(1/(1+log(i)))*(C(skp1)+gamma*Q(skp1,b(1)));
+<span class="comment">%   update the state and choice to the new state and choice</span>
+    sk=skp1;
+    ak=randi(2);
+<span class="keyword">end</span>;
+display(Q)
+</pre><pre class="codeoutput">
+Q =
+
+   16.2760   15.8024
+   14.9077   15.0053
+   16.6025   17.8021
+   14.8587   14.3096
+   23.0169   19.6253
+
+</pre><h2>Compute M<a name="4"></a></h2><pre class="codeinput">[x,y] = min(Q');
+display(y) <span class="comment">%optimal option</span>
+M = zeros(5);
+
+<span class="keyword">for</span> l=1:length(y)
+    <span class="keyword">if</span> y(l)==1
+        M(l,:)=A(l,:);
+    <span class="keyword">else</span>
+        M(l,:)=B(l,:);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+display(M)
+<span class="comment">% check 1</span>
+y1 = y;
+M1 = zeros(5);
+y1(1)=1;
+display(y1)
+<span class="keyword">for</span> l=1:length(y1)
+    <span class="keyword">if</span> y1(l)==1
+        M1(l,:)=A(l,:);
+    <span class="keyword">else</span>
+        M1(l,:)=B(l,:);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="comment">% check 2</span>
+y2 = y;
+M2 = zeros(5);
+y2(4)=1;
+display(y2)
+<span class="keyword">for</span> l=1:length(y2)
+    <span class="keyword">if</span> y2(l)==1
+        M2(l,:)=A(l,:);
+    <span class="keyword">else</span>
+        M2(l,:)=B(l,:);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+y =
+
+     2     1     1     2     2
+
+
+M =
+
+    0.2000    0.6000         0    0.2000         0
+         0         0         0    1.0000         0
+    0.5000         0         0    0.2500    0.2500
+    0.1250         0    0.8750         0         0
+    0.5000         0         0         0    0.5000
+
+
+y1 =
+
+     1     1     1     2     2
+
+
+y2 =
+
+     2     1     1     1     2
+
+</pre><h2>Check the cost to be<a name="5"></a></h2><pre class="codeinput">CTB = inv(eye(5)-gamma*M)*C;
+display(CTB)
+CTB1 = inv(eye(5)-gamma*M1)*C;
+CTB2 = inv(eye(5)-gamma*M1)*C;
+a = CTB-CTB1;
+b = CTB-CTB2;
+display(a)
+display(b)
+<span class="comment">% The difference between the cost to be of the optimal option and any other</span>
+<span class="comment">% cost to be is negative. This proves that the computed policy is optimal.</span>
+</pre><pre class="codeoutput">
+CTB =
+
+   15.9071
+   17.0863
+   15.0627
+   15.6514
+   23.9240
+
+
+a =
+
+   -0.7638
+   -0.5112
+   -0.6121
+   -0.5680
+   -0.6249
+
+
+b =
+
+   -0.7638
+   -0.5112
+   -0.6121
+   -0.5680
+   -0.6249
+
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Steffi Olesi Muhanji
+%%ENGG 177: HW 4
+%% Q-Learning: computing the optimal policy
+clc; clear 
+A =  [1/5 4/5 0 0 0;
+    0 0 0 1 0;
+    1/2 0 0 1/4 1/4;
+    1/2 0 1/2 0 0;
+    0.2 0 0 0 0.8];
+display(A)
+B = [1/5 3/5 0 1/5 0;
+    0.3 0 0 0.7 0;
+    1/3 0 0 1/3 1/3;
+    1/8 0 7/8 0 0;
+    1/2 0 0 0 1/2];
+display(B)
+C = [1 3 -1 2 6]';
+display(C)
+% lambda = 0.9;
+
+Q=rand(5,2); % Random matrix for denoting the rewards/costs
+% for each state for given the two actions A,B. In this case, Q is 5, for
+% the 5 states in A and B, by 2, for the options A, and B.
+% 
+sk=randi(5); % Random integer denoting a state
+ak=randi(2); % Random integer denoting a choice
+gamma=0.9;% discount factor
+n = 180000; 
+%% compute Q
+for i=1:n,
+    if ak==1,
+%         mnrnd samples the row even it and returns a vector of 1's and 0's
+%         based on the probabilities provided
+% maximum value will be 1 and skp1 will be the index of the maximum value
+        [m,skp1] = max(mnrnd(1,A(sk,:)));
+    else
+        [m,skp1] = max(mnrnd(1,B(sk,:)));
+    end;
+%     Find a minimum since we re looking for the least cost
+    [m,b]=min(Q(skp1(1),:));
+%     Update the Q values
+    Q(sk,ak)=(1-1/(1+log(i)))*Q(sk,ak)+(1/(1+log(i)))*(C(skp1)+gamma*Q(skp1,b(1)));
+%   update the state and choice to the new state and choice
+    sk=skp1;
+    ak=randi(2);
+end;
+display(Q)
+%% Compute M
+[x,y] = min(Q');
+display(y) %optimal option
+M = zeros(5);
+
+for l=1:length(y)
+    if y(l)==1
+        M(l,:)=A(l,:);
+    else
+        M(l,:)=B(l,:);
+    end
+end
+display(M)
+% check 1
+y1 = y;
+M1 = zeros(5);
+y1(1)=1;
+display(y1)
+for l=1:length(y1)
+    if y1(l)==1
+        M1(l,:)=A(l,:);
+    else
+        M1(l,:)=B(l,:);
+    end
+end
+% check 2
+y2 = y;
+M2 = zeros(5);
+y2(4)=1;
+display(y2)
+for l=1:length(y2)
+    if y2(l)==1
+        M2(l,:)=A(l,:);
+    else
+        M2(l,:)=B(l,:);
+    end
+end
+%% Check the cost to be 
+CTB = inv(eye(5)-gamma*M)*C;
+display(CTB)
+CTB1 = inv(eye(5)-gamma*M1)*C;
+CTB2 = inv(eye(5)-gamma*M1)*C;
+a = CTB-CTB1;
+b = CTB-CTB2;
+display(a)
+display(b)
+% The difference between the cost to be of the optimal option and any other
+% cost to be is negative. This proves that the computed policy is optimal.
+
+##### SOURCE END #####
+--></body></html>
